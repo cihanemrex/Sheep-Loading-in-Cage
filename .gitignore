@@ -1,0 +1,21 @@
+DerivedData/
+build/
+*.xcuserstate
+xcuserdata/
+.DS_Store
+__pycache__/
+*.pyc
+# Never commit Apple credentials or exported signing files.
+*.p12
+*.p8
+*.key
+*.pem
+*.cer
+*.mobileprovision
+*.certSigningRequest
+*.ipa
+*.xcarchive/
+private_keys/
+signing/
+.env
+.env.*

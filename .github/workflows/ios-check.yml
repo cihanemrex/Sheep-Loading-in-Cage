@@ -1,0 +1,42 @@
+name: iOS - Build check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Select installed release Xcode 26 or newer
+        run: bash ci/select-xcode.sh
+      - name: Build for iOS Simulator without signing
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          xcodebuild -project SheepCrate.xcodeproj -scheme SheepCrate \
+            -configuration Debug -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO build 2>&1 | tee build/simulator.log
+      - name: Save build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: simulator-build-log
+          path: build/simulator.log
+          if-no-files-found: ignore
+          retention-days: 7
